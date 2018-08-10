@@ -4,9 +4,9 @@ ruleset hello_world {
     description <<
 A first ruleset for the Quickstart
 >>
-    author "Phil Windley"
+    author "Brandon Twede"
     logging on
-    shares hello
+    shares hello, __testing
   }
   
   global {
@@ -15,26 +15,50 @@ A first ruleset for the Quickstart
       msg
     }
 	  __testing = { "queries": [ { "name": "hello", "args": [ "obj" ] },
-                           { "name": "__testing" } ],
-              "events": [ { "domain": "echo", "type": "hello" } ]
-            }
+                       { "name": "__testing" } ],
+          "events": [ { "domain": "echo", "type": "hello", "attrs": [ "id" ] },
+          { "domain": "hello", "type": "name", "attrs": [ "name" ] },
+          { "domain": "hello", "type" : "clear" }]
+        }
+    clear_name = { "_0": { "name": { "first": "GlaDOS", "last": "" } } }
   }
+  
   
   rule hello_world {
     select when echo hello
-    send_directive("say", {"something": "Hello World"})
+    pre{
+      id = event:attr("id").defaultsTo("_0")
+      first = ent:name{[id,"name","first"]}
+      last = ent:name{[id,"name","last"]}
+      name = first + " " + last
+    }
+    send_directive("say", {"something":"Hello " + name})
   }
   
   rule store_name {
-	  select when hello name
-	  pre{
-		name = event:attr("name").klog("our passed in name: ")
-	  }
-	  send_directive("store_name", {"name":name})
-	  always{
-		ent:name := name
-      }
+    select when hello name
+    pre{
+      passed_id = event:attr("id").klog("our passed in id: ")
+      passed_first_name = event:attr("first_name").klog("our passed in first_name: ")
+      passed_last_name = event:attr("last_name").klog("our passed in last_name: ")
+    }
+    send_directive("store_name", {
+      "id" : passed_id,
+      "first_name" : passed_first_name,
+      "last_name" : passed_last_name
+    })
+    always{
+      ent:name := ent:name.defaultsTo(clear_name, "initialization was needed");
+      ent:name := ent:name.put([passed_id,"name","first"], passed_first_name)
+                          .put([passed_id,"name","last"], passed_last_name)
+    }
   }
- 
+
+rule clear_names {
+  select when hello clear
+  always {
+    ent:name := clear_name
+  }
+}
   
 }
