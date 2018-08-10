@@ -1,12 +1,12 @@
-ruleset hello_world {
+ruleset part1 {
   meta {
-    name "Hello World"
+    name "Part 1"
     description <<
-A first ruleset for the Quickstart
+Part 1 of the Pico Lab
 >>
     author "Brandon Twede"
     logging on
-    shares hello, __testing
+    shares hello, message, __testing
   }
   
   global {
