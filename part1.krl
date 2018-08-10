@@ -6,14 +6,14 @@ Part 1 of the Pico Lab
 >>
     author "Brandon Twede"
     logging on
-    shares hello, message, __testing
+    shares message, __testing
   }
   
   global {
-	  __testing = { "queries": [ { "name": "hello", "args": [ "obj" ] },
+	  __testing = { "queries": [ 
                        { "name": "__testing" } ],
           "events": [ { "domain": "echo", "type": "hello" },
-          { "domain": "hello", "type": "message", "attrs": [ "input" ] }]
+          { "domain": "echo", "type": "message", "attrs": [ "input" ] }]
         }
   }
   
