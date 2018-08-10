@@ -12,16 +12,36 @@ Part 1, track_trips of the Pico Lab
   global {
 	  __testing = { "queries": [ 
                        { "name": "__testing" } ],
-          "events": [ { "domain": "echo", "type": "message","attrs": [ "mileage" ] }]
+          "events": [ { "domain": "car", "type": "new_trip","attrs": [ "mileage" ] }]
         }
+    long_trip = 10
   }
   
   rule process_trip {
-	select when echo message
-	pre{
-		miles = event:attr("mileage")
-	}
-	send_directive("trip", {"length":miles})
+  	select when car new_trip
+  	pre{
+  		miles = event:attr("mileage")
+  	}
+  	send_directive("trip", {"length":miles})
+  	always {
+  	  raise explicit event "trip_processed"
+  	    attributes event:attrs
+  	}
+  }
+  
+  rule find_long_trips {
+    select when explicit trip_processed
+    pre {
+      miles = event:attr("mileage")
+    }
+    always {
+      raise explicit event "found_long_trip" if (miles > long_trip);
+    }
+  }
+  
+  rule found_long_trip {
+    select when explicit found_long_trip
+    send_directive("say", {"something":"Long Trip Found"})
   }
   
   
