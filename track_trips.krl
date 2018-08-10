@@ -12,7 +12,7 @@ Part 1, track_trips of the Pico Lab
   global {
 	  __testing = { "queries": [ 
                        { "name": "__testing" } ],
-          "events": [ { "domain": "echo", "type": "process_trip" }]
+          "events": [ { "domain": "echo", "type": "message","attrs": [ "mileage" ] }]
         }
   }
   
