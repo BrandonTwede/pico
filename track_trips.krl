@@ -25,7 +25,7 @@ Part 1, track_trips of the Pico Lab
   	send_directive("trip", {"length":miles})
   	always {
   	  raise explicit event "trip_processed"
-  	    attributes event:attrs
+  	    attributes {"mileage":miles, "timestamp":time:now()}//event:attrs
   	}
   }
   
@@ -33,9 +33,10 @@ Part 1, track_trips of the Pico Lab
     select when explicit trip_processed
     pre {
       miles = event:attr("mileage")
+      time = event:attr("timestamp")
     }
     always {
-      raise explicit event "found_long_trip" if (miles > long_trip);
+      raise explicit event "found_long_trip" attributes {"mileage":miles, "timestamp":time} if (miles > long_trip);
     }
   }
   
