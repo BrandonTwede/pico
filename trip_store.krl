@@ -5,9 +5,12 @@ ruleset trip_store {
 Part 3, trip_store of the Pico Lab
 >>
     author "Brandon Twede"
+    use module io.picolabs.subscription alias Subscriptions
+    use module io.picolabs.wrangler alias wrangler
     logging on
     provides trips, long_trips, short_trips
-    shares collect_trips, collect_long_trips, clear_trips, __testing, trips, long_trips, short_trips
+    shares collect_trips, collect_long_trips, clear_trips, __testing, trips, long_trips,
+    short_trips, send_report
   }
   
   global {
@@ -30,6 +33,23 @@ Part 3, trip_store of the Pico Lab
     empty_store = {}
   }
   
+  rule send_report {
+    select when car send_report
+    foreach Subscriptions:established("Tx_role","fleet") setting (subscription)
+    pre {
+      t = ent:trips;
+      name = wrangler:myself(){"name"}
+    }
+    event:send(
+      { "eci": subscription{"Tx"}, "eid": "report-response",
+        "domain": "fleet", "type": "receive_report", "attrs":{"trips": t, "name": name } }
+    )
+    // always{
+    //   raise fleet event "receive_report" attributes {"trips": t};
+    // }
+  }
+  
+
   rule collect_trips {
     select when explicit trip_processed
     pre{

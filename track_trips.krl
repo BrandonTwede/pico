@@ -17,6 +17,14 @@ Part 1, track_trips of the Pico Lab
     long_trip = 10
   }
   
+  rule auto_accept {
+  select when wrangler inbound_pending_subscription_added
+  fired {
+    raise wrangler event "pending_subscription_approval"
+      attributes event:attrs
+  }
+}
+  
   rule process_trip {
   	select when car new_trip
   	pre{
