@@ -6,6 +6,7 @@ ruleset manage_fleet {
     use module io.picolabs.wrangler alias wrangler
     use module io.picolabs.subscription alias Subscriptions
     logging on
+    provides get_report_function, five_latest_reports
     shares __testing, vehicles, save_subscription, store_new_child, create_vehicle,
       delete_vehicle, gather_report, compile_report, save_report, get_report_function, five_latest_reports
   }
